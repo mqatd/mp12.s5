@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale: 1.0">
+    <title>Made in 🇮🇳</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #player-container {
+            background-color: #1e1e1e;
+            border-radius: 15px;
+            padding: 25px; /* Reduced padding */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+        }
+
+        #song-info {
+            margin-bottom: 25px; /* Reduced margin */
+        }
+
+        #song-title {
+            font-size: 1.6em; /* Reduced font size */
+            margin-bottom: 6px; /* Reduced margin */
+            font-weight: 600;
+        }
+
+        #artist {
+            font-size: 1em; /* Reduced font size */
+            color: #b3b3b3;
+            font-style: italic;
+        }
+
+        #controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px; /* Reduced margin */
+        }
+
+        button {
+            background-color: #1db954;
+            color: #fff;
+            border: none;
+            padding: 8px 18px;  /* Reduced padding */
+            margin: 0 8px; /* Reduced margin */
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em; /* Reduced font size */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background-color: #1ed760;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            background-color: #444;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Modern Seekbar */
+        #seek-bar-container {
+            width: 100%;
+            margin-bottom: 15px; /* Reduced margin */
+            display: flex;
+            align-items: center;
+        }
+
+        #current-time,
+        #duration {
+            font-size: 0.8em; /* Reduced font size */
+            color: #b3b3b3;
+            margin: 0 4px; /* Reduced margin */
+            width: 35px;  /* Ensure consistent width */
+            text-align: center; /* Center the time */
+        }
+
+        #seek-bar {
+            width: 100%;
+            height: 6px; /* Reduced height */
+            background-color: #444;
+            border-radius: 5px;
+            cursor: pointer;
+            overflow: hidden; /* Important for the filled part */
+        }
+
+        #seek-bar::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px; /* Reduced size */
+            height: 12px; /* Reduced size */
+            background-color: #1db954;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s ease;
+
+        }
+
+        #seek-bar::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+          /* Seek bar fill (Progress bar) */
+        #seek-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: #1db954;
+            border-radius: 5px;
+            transition: width 0.1s linear;
+        }
+
+        #volume-control {
+            display: flex;
+            align-items: center;
+        }
+
+        #volume-icon {
+            margin-right: 6px; /* Reduced margin */
+            font-size: 1em; /* Reduced font size */
+            cursor: pointer;
+        }
+
+        #volume-slider {
+            width: 90px;  /* Reduced width */
+            margin: 0 8px; /* Reduced margin */
+        }
+
+        #playlist-container {
+            width: 80%;
+            max-width: 700px;
+            background-color: #1e1e1e;
+            border-radius: 15px;
+            padding: 20px; /* Reduced padding */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.7);
+            margin-top: 20px; /* Reduced margin */
+        }
+
+        #playlist-title {
+            font-size: 1.2em; /* Reduced font size */
+            margin-bottom: 15px; /* Reduced margin */
+            font-weight: 600;
+        }
+
+        #playlist {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #playlist li {
+            padding: 12px; /* Reduced padding */
+            border-bottom: 1px solid #333;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #playlist li:last-child {
+            border-bottom: none;
+        }
+
+        #playlist li:hover {
+            background-color: #333;
+        }
+
+        .active-song {
+            background-color: #1db954;
+            color: #000;
+            font-weight: 500;
+        }
+
+        .song-details {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .song-title-playlist {
+            font-size: 1em; /* Reduced font size */
+            font-weight: 500;
+        }
+
+        .artist-playlist {
+            font-size: 0.8em; /* Reduced font size */
+            color: #b3b3b3;
+        }
+
+        .song-duration {
+            font-size: 0.8em; /* Reduced font size */
+            color: #b3b3b3;
+            min-width: 35px; /* Reduced width */
+            text-align: right;
+        }
+
+
+        /* Icon Styling */
+        i {
+            font-size: 1.3em; /* Adjust as needed */
+        }
+
+
+    </style>
+</head>
+<body>
+
+    <div id="player-container">
+        <div id="song-info">
+            <h2 id="song-title">Song Title</h2>
+            <p id="artist">Artist Name</p>
+        </div>
+
+        <audio id="audio-player" preload="metadata">
+            <source src="" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
+        <!-- Seekbar -->
+        <div id="seek-bar-container">
+            <span id="current-time">0:00</span>
+            <input type="range" id="seek-bar" value="0" step="1" min="0">
+            <span id="duration">0:00</span>
+        </div>
+
+        <div id="controls">
+            <button id="prev-btn" disabled><i class="fas fa-backward"></i></button>
+            <button id="play-btn"><i class="fas fa-play"></i></button>
+            <button id="next-btn" disabled><i class="fas fa-forward"></i></button>
+
+            <div id="volume-control">
+                <i id="volume-icon" class="fas fa-volume-up"></i>
+                <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="1">
+            </div>
+        </div>
+    </div>
+
+    <div id="playlist-container">
+        <h2 id="playlist-title">Playlist</h2>
+        <ul id="playlist">
+            </ul>
+    </div>
+
+
+    <script>
+        const audioPlayer = document.getElementById('audio-player');
+        const songTitle = document.getElementById('song-title');
+        const artist = document.getElementById('artist');
+        const playBtn = document.getElementById('play-btn');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const volumeSlider = document.getElementById('volume-slider');
+        const playlistElement = document.getElementById('playlist');
+        const seekBar = document.getElementById('seek-bar');
+        const volumeIcon = document.getElementById('volume-icon');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const durationDisplay = document.getElementById('duration');
+
+
+        let currentSongIndex = 0;
+        let isPlaying = false;
+
+        // Sample music data (replace with your own)
+        const songs = [
+            {
+                title: "Track 1",
+                artist: "various",
+                source: "Track 1.mp3", // Replace with actual audio URL
+                duration: "4:21" // Add duration
+            },
+            {
+                title: "Track 2",
+                artist: "various",
+                source: "Track 2.mp3", // Replace with actual audio URL
+                duration: "5:19"
+            },
+            {
+                title: "Track 3",
+                artist: "various",
+                source: "Track 3.mp3", // Replace with actual audio URL
+                duration: "4:39"
+            },
+            {
+                title: "Track 4",
+                artist: "various",
+                source: "Track 1.mp3", // Replace with actual audio URL
+                duration: "4:44"
+            },
+            {
+                title: "Track 5",
+                artist: "various",
+                source: "Track 1.mp3", // Replace with actual audio URL
+                duration: "4:49"
+            },
+             
+        ];
+
+        function loadSong(songIndex) {
+            const song = songs[songIndex];
+            audioPlayer.src = song.source;
+            songTitle.textContent = song.title;
+            artist.textContent = song.artist;
+
+            audioPlayer.addEventListener('loadedmetadata', () => {
+                seekBar.max = audioPlayer.duration;
+                durationDisplay.textContent = formatTime(audioPlayer.duration);  // Display total duration
+            });
+
+
+            // Update button states (enable/disable prev/next)
+            prevBtn.disabled = songIndex === 0;
+            nextBtn.disabled = songIndex === songs.length - 1;
+
+            // Highlight the active song in the playlist
+            updatePlaylistHighlight();
+        }
+
+        function playSong() {
+            audioPlayer.play();
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+
+        function pauseSong() {
+            audioPlayer.pause();
+            isPlaying = false;
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+
+        function nextSong() {
+            if (currentSongIndex < songs.length - 1) {
+                currentSongIndex++;
+                loadSong(currentSongIndex);
+                if (isPlaying) {
+                    playSong();
+                }
+            }
+        }
+
+        function prevSong() {
+            if (currentSongIndex > 0) {
+                currentSongIndex--;
+                loadSong(currentSongIndex);
+                if (isPlaying) {
+                    playSong();
+                }
+            }
+        }
+
+        function updateVolume() {
+            audioPlayer.volume = volumeSlider.value;
+
+             // Change volume icon based on volume level
+            if (audioPlayer.volume === 0) {
+                volumeIcon.classList.remove('fas', 'fa-volume-up');
+                volumeIcon.classList.add('fas', 'fa-volume-mute');
+            } else if (audioPlayer.volume < 0.5) {
+                volumeIcon.classList.remove('fas', 'fa-volume-up', 'fa-volume-mute');
+                volumeIcon.classList.add('fas', 'fa-volume-down');
+            } else {
+                volumeIcon.classList.remove('fas', 'fa-volume-mute', 'fa-volume-down');
+                volumeIcon.classList.add('fas', 'fa-volume-up');
+            }
+        }
+
+        function createPlaylist() {
+            songs.forEach((song, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div class="song-details">
+                        <div class="song-title-playlist">${song.title}</div>
+                        <div class="artist-playlist">${song.artist}</div>
+                    </div>
+                    <div class="song-duration">${song.duration}</div>
+                `;
+                listItem.addEventListener('click', () => {
+                    currentSongIndex = index;
+                    loadSong(currentSongIndex);
+                    if (isPlaying) {
+                        playSong();
+                    } else {
+                        pauseSong(); // Ensure correct state
+                    }
+                });
+                playlistElement.appendChild(listItem);
+            });
+        }
+
+        function updatePlaylistHighlight() {
+            const playlistItems = document.querySelectorAll('#playlist li');
+            playlistItems.forEach((item, index) => {
+                if (index === currentSongIndex) {
+                    item.classList.add('active-song');
+                } else {
+                    item.classList.remove('active-song');
+                }
+            });
+        }
+
+        function updateSeekBar() {
+            seekBar.value = audioPlayer.currentTime;
+            currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime); // Update current time
+        }
+
+
+        function formatTime(time) {
+            const minutes = Math.floor(time / 60);
+            const seconds = Math.floor(time % 60);
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+
+        // Event listeners
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseSong();
+            } else {
+                playSong();
+            }
+        });
+
+        nextBtn.addEventListener('click', nextSong);
+        prevBtn.addEventListener('click', prevSong);
+        volumeSlider.addEventListener('input', updateVolume);
+
+        audioPlayer.addEventListener('ended', () => {
+            // Play next song automatically when the current one ends.
+            if (currentSongIndex < songs.length - 1) {
+                nextSong();
+            } else {
+                pauseSong(); // Optionally stop if it's the last song.
+                audioPlayer.currentTime = 0; // Reset to beginning
+                seekBar.value = 0;
+                currentTimeDisplay.textContent = "0:00"; // Reset current time display
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+
+        audioPlayer.addEventListener('timeupdate', updateSeekBar);
+
+        seekBar.addEventListener('input', () => {
+            audioPlayer.currentTime = seekBar.value;
+        });
+
+
+
+        // Initialization
+        loadSong(currentSongIndex);
+        createPlaylist();
+        updateVolume(); // Initialize Volume Icon
+        setInterval(updateSeekBar, 500); // Update seekbar every 0.5 seconds for smooth tracking
+
+    </script>
+
+</body>
+</html>
